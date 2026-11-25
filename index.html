@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>NEUROLINGUA 3D · Cómo procesa el cerebro un nuevo idioma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080d1b;--panel:#101a30;--panel2:#172541;--line:#2b3d60;--ink:#eef4ff;--muted:#9aacca;--cyan:#45d8f2;--blue:#5594ff;--violet:#bb83ff;--pink:#ff79bd;--gold:#ffc66d;--green:#69e0b0;--orange:#ff956b;--fontd:'Chakra Petch',sans-serif;--fontb:Inter,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:var(--fontb);background:var(--bg);color:var(--ink)}body{overflow:hidden}
+button,select,input{font:inherit;color:inherit}button{cursor:pointer}
+#app{height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) 355px;grid-template-rows:62px minmax(0,1fr)}
+header{grid-column:1/-1;display:flex;align-items:center;gap:13px;padding:0 18px;background:linear-gradient(90deg,#111d38,#10182b 65%,#21182e);border-bottom:1px solid var(--line);position:relative;z-index:5}
+header:after{content:"";height:2px;position:absolute;bottom:0;left:0;right:0;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--violet),var(--pink),var(--gold))}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}.brand svg{width:38px;flex:none}.brand h1{font:700 19px var(--fontd);margin:0;letter-spacing:.8px}.brand h1 span{color:var(--cyan)}.brand p{font-size:10px;color:var(--muted);margin:1px 0 0}
+.spacer{flex:1}.headbtn,.btn{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:12px;font-weight:600;transition:.18s}.headbtn:hover,.btn:hover{border-color:var(--cyan);transform:translateY(-1px);box-shadow:0 5px 18px #45d8f233}.headbtn.off{color:var(--muted)}
+#stage{position:relative;min-width:0;overflow:hidden;background:radial-gradient(ellipse at 48% 42%,#172b50 0,#0b1429 52%,#070b16 100%)}
+#view{position:absolute;inset:0}#view canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;z-index:2;background:#091326d9;border:1px solid #35496e;border-radius:13px;backdrop-filter:blur(9px);box-shadow:0 8px 28px #0007}
+#phaseBadge{top:14px;left:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;border-left:4px solid var(--cyan)}
+#phaseNum{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--cyan);color:#08101e;font:700 22px var(--fontd)}
+#phaseName{font:700 16px var(--fontd);color:var(--cyan)}#phaseSub{font-size:10px;color:var(--muted);margin-top:2px}
+#hint{top:15px;right:14px;padding:8px 11px;color:var(--muted);font-size:10px}
+#info{left:14px;bottom:130px;width:min(330px,calc(100% - 28px));padding:13px 15px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s}
+#info.show{opacity:1;transform:none}#info h3{font:700 17px var(--fontd);margin:0 25px 5px 0;color:var(--cyan)}#info p{font-size:11.5px;line-height:1.55;color:#d2def1;margin:0}#info button{position:absolute;right:8px;top:7px;background:none;border:0;font-size:19px}
+#timeline{left:12px;right:12px;bottom:12px;padding:11px 13px 9px}
+#phases{display:flex;gap:5px} .phase{flex:1;min-width:0;text-align:left;background:none;border:0;padding:0 2px}
+.phase b{font:600 10px var(--fontd);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted);margin-bottom:5px}
+.phase i{height:8px;display:block;border-radius:10px;background:#1c2a46;border:1px solid #33496e;overflow:hidden}
+.phase i span{display:block;width:0;height:100%;background:var(--pc);transition:width .2s}
+.phase.active b{color:var(--pc)}.phase.done i span{width:100%;opacity:.45}.phase.active i{box-shadow:0 0 12px color-mix(in srgb,var(--pc) 65%,transparent)}
+#readout{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font:10px var(--fontd);color:var(--muted);margin-top:8px}#readout strong{color:var(--ink)}
+#panel{background:linear-gradient(180deg,#101a30,#0b1323);border-left:1px solid var(--line);overflow:auto;padding:15px 15px 24px}
+.sec{margin-bottom:18px}.sectitle{font:700 11px var(--fontd);letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 10px}.sectitle:before{content:"";display:inline-block;width:13px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--violet));margin:0 8px 3px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}.btn.primary{background:linear-gradient(135deg,#174d6c,#263b70);border-color:#347ba0}.btn.accent{background:linear-gradient(135deg,#57366e,#293f75);border-color:#7857a5}.btn.wide{width:100%}
+.rangeRow{margin-top:12px}.rangeRow label{display:flex;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:7px}.rangeRow output{color:var(--cyan);font-family:var(--fontd)}
+input[type=range]{width:100%;accent-color:var(--cyan)}select{width:100%;padding:9px;border-radius:9px;background:var(--panel2);border:1px solid var(--line);font-size:11px}
+.switchrow{display:flex;align-items:center;justify-content:space-between;padding:7px 1px;font-size:11px;font-weight:600}.switchrow small{display:block;color:var(--muted);font-size:9px;font-weight:400;margin-top:3px}.switchrow input{accent-color:var(--cyan);width:17px;height:17px}
+.card{background:linear-gradient(145deg,#162744,#101a30);border:1px solid #35496e;border-radius:13px;padding:12px}.card h3{font:700 16px var(--fontd);margin:0 0 6px;color:var(--cyan)}.card p{font-size:11px;line-height:1.55;color:#d2def1;margin:0}.tip{font-size:10px;color:var(--gold);background:#2b2530;border:1px dashed #795a4a;border-radius:8px;padding:8px;margin-top:9px;line-height:1.45}
+#legend{display:grid;grid-template-columns:1fr 1fr;gap:6px}.chip{display:flex;align-items:center;gap:7px;text-align:left;background:#14213a;border:1px solid #2b3d60;border-radius:8px;padding:7px;font-size:10px;min-width:0}.chip i{width:8px;height:8px;flex:none;border-radius:50%;background:var(--pc);box-shadow:0 0 7px var(--pc)}.chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chip.active{border-color:var(--pc);background:#20304e}
+#phraseBox{background:#101f39;border:1px solid #30496e;border-radius:12px;padding:11px}.phraseTop{display:flex;align-items:center;justify-content:space-between;gap:8px}.phraseTop label{font-size:10px;color:var(--muted)}#phrase{font:600 15px var(--fontd);color:#fff;margin:8px 0 5px}#translation{font-size:11px;color:var(--green);min-height:16px}#phraseBox .btn{margin-top:9px;width:100%}
+.note{font-size:9.5px;line-height:1.5;color:#8fa3c4;margin-top:8px}
+#toast{position:fixed;z-index:20;bottom:18px;left:50%;transform:translateX(-50%);background:#101d34;border:1px solid var(--cyan);border-radius:30px;padding:9px 15px;font-size:11px;opacity:0;pointer-events:none;transition:.2s}#toast.show{opacity:1}
+#loader{position:absolute;inset:0;z-index:10;display:grid;place-items:center;background:#080d1bf5;transition:opacity .4s}.loadbox{text-align:center}.loadbox h2{font:700 18px var(--fontd);color:var(--cyan)}.loadbox p{font-size:11px;color:var(--muted)}.spin{width:40px;height:40px;border:3px solid #263a5c;border-top-color:var(--cyan);border-radius:50%;margin:0 auto 12px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:920px){body{overflow:auto}#app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:58px 60vh auto}#stage{min-height:430px}#panel{border-left:0;border-top:1px solid var(--line);overflow:visible}.brand p{display:none}#hint{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="app">
+<header>
+ <div class="brand">
+  <svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 5C14 4 7 12 8 22c-2 9 5 19 15 20 4-3 5-7 5-11 6-1 12-5 12-13C40 10 33 5 24 5Z" stroke="#45d8f2" stroke-width="2.4"/><path d="M24 8c-4 7-2 11 2 15m-16-4c6-2 10 0 13 4m-8 13c1-7 4-11 10-13m-2-9c5-2 9-1 12 2" stroke="#bb83ff" stroke-width="2" stroke-linecap="round"/><circle cx="25" cy="24" r="3" fill="#ffc66d"/></svg>
+  <div><h1>NEURO<span>LINGUA</span> 3D</h1><p>Laboratorio interactivo · Cerebro y nuevos idiomas</p></div>
+ </div><div class="spacer"></div><button class="headbtn" id="soundBtn">♫ Sonido: ACTIVADO</button><button class="headbtn" id="fullBtn">⛶</button>
+</header>
+<main id="stage">
+ <div id="view"></div>
+ <div id="phaseBadge" class="overlay"><div id="phaseNum">1</div><div><div id="phaseName">ENTRADA AUDITIVA</div><div id="phaseSub">El sonido llega al sistema auditivo</div></div></div>
+ <div id="hint" class="overlay">🖱️ Arrastra para girar · Rueda para zoom · Clic en una región</div>
+ <div id="info" class="overlay"><button id="closeInfo">×</button><h3 id="infoName">Región cerebral</h3><p id="infoDesc"></p></div>
+ <div id="timeline" class="overlay"><div id="phases"></div><div id="readout"><span>PROCESO: <strong id="stepRead">1 / 5</strong></span><span>FAMILIARIDAD: <strong id="famRead">Baja</strong></span><span>COMPRENSIÓN: <strong id="underRead">En análisis</strong></span></div></div>
+ <div id="loader"><div class="loadbox"><div class="spin"></div><h2>PREPARANDO EL CEREBRO…</h2><p>Construyendo el laboratorio de procesamiento del lenguaje.</p></div></div>
+</main>
+<aside id="panel">
+ <section class="sec">
+  <h3 class="sectitle">Escucha un nuevo idioma</h3>
+  <div id="phraseBox">
+   <div class="phraseTop"><label for="phraseSelect">FRASE EN INGLÉS</label><select id="phraseSelect" style="width:auto;max-width:145px"><option value="0">Pregunta sencilla</option><option value="1">Frase cotidiana</option><option value="2">Frase desconocida</option><option value="3">Instrucción</option></select></div>
+   <div id="phrase">Where is the train station?</div><div id="translation">¿Dónde está la estación de tren?</div>
+   <button class="btn primary" id="speakBtn">▶ Escuchar frase en inglés</button>
+  </div>
+  <p class="note">La voz depende de las voces disponibles en tu navegador. La frase se reproduce como ejemplo de entrada auditiva.</p>
+ </section>
+ <section class="sec">
+  <h3 class="sectitle">Controles de simulación</h3>
+  <div class="grid2"><button class="btn primary" id="playBtn">Ⅱ Pausar</button><button class="btn" id="stepBtn">Siguiente fase ↦</button></div>
+  <div class="rangeRow"><label>Velocidad del proceso <output id="speedOut">1.0×</output></label><input id="speed" type="range" min=".25" max="2.5" step=".25" value="1"></div>
+  <div class="rangeRow"><label>Familiaridad con el idioma <output id="famOut">20%</output></label><input id="familiarity" type="range" min="0" max="100" value="20"></div>
+  <div class="rangeRow"><label>Ayuda del contexto <output id="contextOut">35%</output></label><input id="context" type="range" min="0" max="100" value="35"></div>
+  <p class="note">Estos deslizadores son variables didácticas, no mediciones clínicas ni porcentajes reales de actividad cerebral.</p>
+ </section>
+ <section class="sec">
+  <h3 class="sectitle">Fase actual</h3>
+  <div class="card"><h3 id="cardTitle">1 · Entrada auditiva</h3><p id="cardDesc">La señal sonora se transforma en actividad nerviosa y llega a las áreas auditivas del cerebro.</p><div class="tip" id="cardTip">👀 Observa: las señales luminosas se dirigen hacia la región temporal.</div></div>
+ </section>
+ <section class="sec">
+  <h3 class="sectitle">Visualización cerebral</h3>
+  <label class="switchrow"><span>Vista expandida de regiones<small>Separar visualmente las zonas destacadas</small></span><input id="explode" type="checkbox"></label>
+  <label class="switchrow"><span>Vista de conexiones<small>Mostrar rutas entre regiones</small></span><input id="xray" type="checkbox" checked></label>
+  <label class="switchrow"><span>Etiquetas anatómicas<small>Mostrar nombres en la escena</small></span><input id="labels" type="checkbox" checked></label>
+  <label class="switchrow"><span>Giro automático<small>Rotación lenta de la cámara</small></span><input id="rotate" type="checkbox"></label>
+  <div class="rangeRow"><label>Calidad gráfica</label><select id="quality"><option value="high">Alta</option><option value="medium" selected>Media</option><option value="low">Baja</option></select></div>
+ </section>
+ <section class="sec">
+  <h3 class="sectitle">Cámara</h3>
+  <div class="grid2"><button class="btn cam" data-view="left">Lateral izquierda</button><button class="btn cam" data-view="right">Lateral derecha</button><button class="btn cam" data-view="front">Frontal</button><button class="btn cam" data-view="top">Superior</button></div>
+  <div class="grid2" style="margin-top:7px"><button class="btn" id="centerBtn">◎ Centrar</button><button class="btn" id="surpriseBtn">✧ Sorpresa</button></div>
+ </section>
+ <section class="sec"><h3 class="sectitle">Regiones cerebrales</h3><div id="legend"></div><p class="note">Selecciona una región en la lista o directamente en el modelo 3D para conocer su participación.</p></section>
+ <section class="sec"><h3 class="sectitle">Acciones</h3><div class="grid2"><button class="btn" id="resetBtn">↺ Reiniciar</button><button class="btn accent" id="shotBtn">▣ Captura PNG</button></div><p class="note">Atajos: Espacio = pausa · → = siguiente fase · E = vista expandida · X = conexiones · R = reiniciar · Esc = cerrar ficha.</p></section>
+ <section class="sec"><h3 class="sectitle">Nota científica</h3><p class="note">La actividad luminosa es una representación conceptual. No es una resonancia magnética real ni muestra con exactitud qué neuronas se activan en una persona. El procesamiento del lenguaje depende de redes conectadas y varía según la experiencia, la tarea y el contexto.</p></section>
+</aside>
+</div><div id="toast"></div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const $=s=>document.querySelector(s), clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), lerp=(a,b,t)=>a+(b-a)*t;
+const COLORS={auditory:'#45d8f2',temporal:'#5594ff',semantic:'#bb83ff',broca:'#ff79bd',memory:'#ffc66d',prefrontal:'#69e0b0',motor:'#ff956b',tract:'#8aa9d8'};
+const PHASES=[
+{name:'ENTRADA AUDITIVA',sub:'El sonido llega al sistema auditivo',color:'#45d8f2',desc:'La señal sonora se transforma en actividad nerviosa y llega a las áreas auditivas del cerebro, en los lóbulos temporales.',tip:'👀 Observa: los pulsos luminosos llegan primero a la corteza auditiva.'},
+{name:'ANÁLISIS DE SONIDOS',sub:'Se distinguen patrones del habla',color:'#5594ff',desc:'Las redes auditivas analizan cambios de frecuencia, ritmo, entonación y rasgos de los sonidos. El cerebro intenta agruparlos como fonemas y sílabas.',tip:'👀 Observa: la región temporal superior se ilumina mientras los pulsos se agrupan.'},
+{name:'RECONOCIMIENTO DE PALABRAS',sub:'Los sonidos se comparan con conocimientos previos',color:'#bb83ff',desc:'El cerebro busca patrones familiares y activa conocimientos sobre palabras. Si el idioma es nuevo, algunas secuencias pueden no coincidir con representaciones ya aprendidas.',tip:'👀 Observa: las señales viajan hacia regiones temporales que ayudan a acceder al vocabulario.'},
+{name:'INTERPRETACIÓN',sub:'Palabras, gramática, contexto y memoria',color:'#ffc66d',desc:'Distintas regiones temporales y otras redes combinan palabras, relaciones gramaticales, contexto y recuerdos para construir una interpretación posible.',tip:'👀 Observa: se encienden varias regiones conectadas; el contexto puede ayudar a resolver dudas.'},
+{name:'PREPARACIÓN DE RESPUESTA',sub:'Se organiza una posible contestación',color:'#ff79bd',desc:'Si la persona decide responder, las redes frontales y premotoras ayudan a seleccionar y organizar palabras y preparar los movimientos del habla.',tip:'👀 Observa: la actividad se desplaza hacia regiones frontales y motoras.'}
+];
+const PARTS=[
+{id:'auditory',name:'Corteza auditiva',desc:'Analiza características básicas del sonido, como frecuencia, intensidad y patrones temporales. Es una entrada importante para procesar el habla.',pos:[-1.38,.12,.55],color:COLORS.auditory,scale:[.45,.29,.3]},
+{id:'temporal',name:'Giro temporal superior',desc:'Participa en el análisis de sonidos del habla y en la formación de representaciones fonológicas, como sílabas y secuencias sonoras.',pos:[-.9,-.22,.78],color:COLORS.temporal,scale:[.55,.22,.25]},
+{id:'semantic',name:'Red temporal de significado',desc:'Regiones temporales medias e inferiores ayudan a relacionar las formas de las palabras con conceptos y significados.',pos:[-.42,-.58,.65],color:COLORS.semantic,scale:[.48,.24,.28]},
+{id:'broca',name:'Región de Broca',desc:'Parte de la corteza frontal inferior. Participa en procesos del lenguaje, incluida la organización gramatical y la preparación de la expresión.',pos:[.8,-.42,.7],color:COLORS.broca,scale:[.38,.28,.27]},
+{id:'memory',name:'Hipocampo',desc:'Estructura profunda del lóbulo temporal que participa en formar y recuperar recuerdos. Puede contribuir al aprendizaje de vocabulario y asociaciones.',pos:[-.22,-.75,.05],color:COLORS.memory,scale:[.28,.2,.2]},
+{id:'prefrontal',name:'Corteza prefrontal',desc:'Contribuye a mantener la atención, usar información del contexto y controlar la selección de respuestas, especialmente cuando hay competencia entre opciones.',pos:[1.1,.35,.35],color:COLORS.prefrontal,scale:[.35,.34,.28]},
+{id:'motor',name:'Corteza premotora y motora',desc:'Participa en planificar y ejecutar los movimientos necesarios para articular una respuesta hablada.',pos:[.95,.72,.25],color:COLORS.motor,scale:[.32,.25,.24]}
+];
+const state={progress:0,playing:true,speed:1,explode:0,xray:true,labels:true,rotate:false,selected:null,familiarity:20,context:35,sound:true,quality:'medium',lastPhase:0};
+let scene,camera,renderer,controls,brain,parts={},links=[],particles=[],labels={},clock=new THREE.Clock(),raycaster=new THREE.Raycaster(),mouse=new THREE.Vector2(),down=null;
+const view=$('#view');
+function mat(color,em=0){return new THREE.MeshStandardMaterial({color,roughness:.48,metalness:.08,emissive:color,emissiveIntensity:em})}
+function makeBrain(){
+ brain=new THREE.Group();scene.add(brain);
+ // Dos hemisferios estilizados con superficie plegada.
+ for(const side of [-1,1]){
+  const hemi=new THREE.Mesh(new THREE.SphereGeometry(1,64,48),new THREE.MeshStandardMaterial({color:0x9c8cb4,roughness:.78,metalness:.02,transparent:true,opacity:.88}));
+  hemi.scale.set(1.18,.78,.62);hemi.position.set(side*.58,0,0);brain.add(hemi);
+  // Surcos curvos decorativos, no anatómicos exactos.
+  for(let i=0;i<13;i++){
+   const pts=[];const x=side*.58+(Math.random()-.5)*1.45;const y=(Math.random()-.5)*1.12;
+   for(let j=0;j<=18;j++){const t=j/18;pts.push(new THREE.Vector3(x+Math.sin(t*Math.PI*2+i)*.035,y+(t-.5)*.62,.54*Math.sqrt(Math.max(.08,1-Math.pow((x-side*.58)/1.22,2)-Math.pow(y/.82,2)))+.012));}
+   const curve=new THREE.CatmullRomCurve3(pts);const line=new THREE.Mesh(new THREE.TubeGeometry(curve,24,.008,5,false),new THREE.MeshStandardMaterial({color:0x665d7c,transparent:true,opacity:.55}));brain.add(line);
+  }
+ }
+ // Fisura longitudinal
+ const fissure=new THREE.Mesh(new THREE.BoxGeometry(.035,1.12,.5),new THREE.MeshStandardMaterial({color:0x211d36,transparent:true,opacity:.55}));fissure.position.z=.58;brain.add(fissure);
+ // Tronco encefálico y cerebelo
+ const stem=new THREE.Mesh(new THREE.CapsuleGeometry(.16,.55,5,12),mat('#877a9d'));stem.position.set(0,-.88,-.15);stem.rotation.z=-.18;brain.add(stem);
+ const cereb=new THREE.Mesh(new THREE.SphereGeometry(.42,32,24),mat('#8d7f9f'));cereb.scale.set(1,.72,.8);cereb.position.set(-.05,-.85,-.45);brain.add(cereb);
+ PARTS.forEach(p=>{
+  const g=new THREE.Group();g.position.set(...p.pos);
+  const mesh=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),mat(p.color,.08));mesh.scale.set(...p.scale);mesh.userData.partId=p.id;g.add(mesh);
+  const halo=new THREE.Mesh(new THREE.SphereGeometry(1.12,24,20),new THREE.MeshBasicMaterial({color:p.color,transparent:true,opacity:.08,wireframe:true}));halo.scale.copy(mesh.scale);g.add(halo);
+  g.userData.partId=p.id;brain.add(g);parts[p.id]={group:g,mesh,halo,base:new THREE.Vector3(...p.pos),data:p};
+  const el=document.createElement('button');el.className='brainlabel';el.textContent=p.name;el.style.cssText=`position:absolute;z-index:3;background:#091326dd;border:1px solid ${p.color};color:#fff;border-radius:20px;padding:4px 8px;font:10px Inter;white-space:nowrap;transform:translate(-50%,-50%);pointer-events:auto;display:none`;el.addEventListener('click',()=>selectPart(p.id));view.appendChild(el);labels[p.id]=el;
+ });
+ // Fascículo arqueado simplificado y otras conexiones.
+ const curves=[
+  [[-.95,-.2,.9],[-.45,.2,1.0],[.15,.4,.95],[.78,-.35,.9]],
+  [[-.85,-.3,.86],[-.55,-.6,.9],[-.05,-.6,.85],[.7,-.4,.88]],
+  [[-.3,-.55,.7],[.1,-.1,.92],[.7,.25,.82],[1.05,.35,.65]]
+ ];
+ curves.forEach((pts,i)=>{const c=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p)));const m=new THREE.Mesh(new THREE.TubeGeometry(c,64,.018,8,false),new THREE.MeshStandardMaterial({color:COLORS.tract,transparent:true,opacity:.65,emissive:COLORS.tract,emissiveIntensity:.15}));brain.add(m);links.push(m);});
+ // Partículas que recorren la ruta auditiva y la red.
+ for(let i=0;i<90;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.018+Math.random()*.012,8,8),new THREE.MeshBasicMaterial({color:i%3===0?COLORS.gold||'#ffc66d':'#7cecff'}));scene.add(s);particles.push({mesh:s,t:Math.random(),route:i%3});}
+}
+function setup(){
+ scene=new THREE.Scene();scene.fog=new THREE.Fog(0x080d1b,5,12);
+ camera=new THREE.PerspectiveCamera(38,1,.1,100);camera.position.set(0,.25,5.2);
+ renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(view.clientWidth,view.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;view.appendChild(renderer.domElement);
+ controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(0,-.05,0);controls.minDistance=3;controls.maxDistance=8;
+ scene.add(new THREE.HemisphereLight(0xc4dfff,0x261c3a,2));
+ const key=new THREE.DirectionalLight(0xffdfc2,3);key.position.set(3,4,5);scene.add(key);
+ const rim=new THREE.PointLight(0x438dff,25,9);rim.position.set(-3,1,-2);scene.add(rim);
+ const floor=new THREE.Mesh(new THREE.CircleGeometry(2.6,64),new THREE.MeshBasicMaterial({color:0x172848,transparent:true,opacity:.18,side:THREE.DoubleSide}));floor.rotation.x=-Math.PI/2;floor.position.y=-1.5;scene.add(floor);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(1.85,.012,8,100),new THREE.MeshBasicMaterial({color:0x45d8f2,transparent:true,opacity:.5}));ring.rotation.x=Math.PI/2;ring.position.y=-1.48;scene.add(ring);
+ makeBrain();buildUI();window.addEventListener('resize',resize);renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:performance.now()}});renderer.domElement.addEventListener('pointerup',e=>{if(!down)return;const d=Math.hypot(e.clientX-down.x,e.clientY-down.y);if(d<6&&performance.now()-down.t<450)pick(e);down=null});
+ $('#loader').style.opacity=0;setTimeout(()=>$('#loader').remove(),450);setProgress(0);renderer.setAnimationLoop(animate);
+}
+function buildUI(){
+ $('#phases').innerHTML=PHASES.map((p,i)=>`<button class="phase" data-i="${i}" style="--pc:${p.color}"><b>${i+1}. ${p.name.split(' ')[0]}</b><i><span></span></i></button>`).join('');
+ document.querySelectorAll('.phase').forEach(b=>b.onclick=()=>{state.playing=false;setPlayingUI();setProgress(+b.dataset.i/5+.001)});
+ $('#legend').innerHTML=PARTS.map(p=>`<button class="chip" data-id="${p.id}" style="--pc:${p.color}"><i></i><span>${p.name}</span></button>`).join('');
+ document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>selectPart(b.dataset.id));
+ $('#playBtn').onclick=()=>{state.playing=!state.playing;setPlayingUI()};
+ $('#stepBtn').onclick=()=>{state.playing=false;setPlayingUI();setProgress((Math.floor(state.progress*5)+1)/5+.001)};
+ $('#speed').oninput=e=>{state.speed=+e.target.value;$('#speedOut').textContent=state.speed.toFixed(2)+'×'};
+ $('#familiarity').oninput=e=>{state.familiarity=+e.target.value;$('#famOut').textContent=e.target.value+'%';updateReadout()};
+ $('#context').oninput=e=>{state.context=+e.target.value;$('#contextOut').textContent=e.target.value+'%';updateReadout()};
+ $('#explode').onchange=e=>{state.explode=e.target.checked?1:0;toast(e.target.checked?'Vista expandida':'Regiones reunidas')};
+ $('#xray').onchange=e=>{state.xray=e.target.checked;links.forEach(x=>x.visible=state.xray)};
+ $('#labels').onchange=e=>{state.labels=e.target.checked;Object.values(labels).forEach(x=>x.style.display=state.labels?'block':'none')};
+ $('#rotate').onchange=e=>{state.rotate=e.target.checked;controls.autoRotate=state.rotate;controls.autoRotateSpeed=.5};
+ $('#quality').onchange=e=>{state.quality=e.target.value;const d=state.quality==='high'?2:state.quality==='medium'?1.5:1;renderer.setPixelRatio(Math.min(devicePixelRatio,d));renderer.setSize(view.clientWidth,view.clientHeight);toast('Calidad: '+e.target.value)};
+ $('#resetBtn').onclick=reset;$('#centerBtn').onclick=()=>cameraTo('left');$('#surpriseBtn').onclick=()=>cameraTo(['front','top','right'][Math.floor(Math.random()*3)]);
+ document.querySelectorAll('.cam').forEach(b=>b.onclick=()=>cameraTo(b.dataset.view));
+ $('#closeInfo').onclick=()=>selectPart(null);$('#shotBtn').onclick=capture;
+ $('#fullBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
+ $('#soundBtn').onclick=()=>{state.sound=!state.sound;$('#soundBtn').textContent='♫ Sonido: '+(state.sound?'ACTIVADO':'SILENCIADO');if(!state.sound)speechSynthesis.cancel()};
+ $('#speakBtn').onclick=speakPhrase;$('#phraseSelect').onchange=updatePhrase;updatePhrase();
+ Object.values(labels).forEach(x=>x.style.display='block');
+}
+const phrases=[
+ ['Where is the train station?','¿Dónde está la estación de tren?'],
+ ['I would like a glass of water, please.','Quisiera un vaso de agua, por favor.'],
+ ['The weather is different today.','El clima es diferente hoy.'],
+ ['Please turn left at the next street.','Por favor, gira a la izquierda en la siguiente calle.']
+];
+function updatePhrase(){const p=phrases[+$('#phraseSelect').value];$('#phrase').textContent=p[0];$('#translation').textContent=p[1]}
+function speakPhrase(){if(!state.sound){toast('Activa el sonido para escuchar la frase');return}if(!('speechSynthesis'in window)){toast('Este navegador no ofrece voz automática');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance($('#phrase').textContent);u.lang='en-US';u.rate=.88;speechSynthesis.speak(u);state.playing=true;setPlayingUI();setProgress(0)}
+function setPlayingUI(){$('#playBtn').textContent=state.playing?'Ⅱ Pausar':'▶ Reproducir'}
+function phaseIndex(){return Math.min(4,Math.floor(state.progress*5))}
+function setProgress(v){state.progress=clamp(v,0,.9999);const i=phaseIndex(),p=PHASES[i];$('#phaseNum').textContent=i+1;$('#phaseName').textContent=p.name;$('#phaseName').style.color=p.color;$('#phaseSub').textContent=p.sub;$('#phaseNum').style.background=p.color;$('#phaseBadge').style.borderLeftColor=p.color;$('#cardTitle').textContent=(i+1)+' · '+p.name.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());$('#cardTitle').style.color=p.color;$('#cardDesc').textContent=p.desc;$('#cardTip').textContent=p.tip;document.querySelectorAll('.phase').forEach((b,j)=>{b.classList.toggle('active',j===i);b.classList.toggle('done',j<i);b.querySelector('span').style.width=j<i?'100%':j===i?((state.progress*5-i)*100)+'%':'0%'});$('#stepRead').textContent=(i+1)+' / 5';updateReadout();state.lastPhase=i}
+function updateReadout(){const f=state.familiarity,c=state.context;$('#famRead').textContent=f<30?'Baja':f<70?'Media':'Alta';const score=f*.7+c*.3;$('#underRead').textContent=score<25?'Muy incierta':score<55?'Parcial / tentativa':'Más probable';}
+function selectPart(id){state.selected=id;document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.dataset.id===id));if(!id){$('#info').classList.remove('show');return}const p=PARTS.find(x=>x.id===id);$('#infoName').textContent=p.name;$('#infoName').style.color=p.color;$('#infoDesc').textContent=p.desc;$('#info').classList.add('show')}
+function pick(e){const r=renderer.domElement.getBoundingClientRect();mouse.x=((e.clientX-r.left)/r.width)*2-1;mouse.y=-((e.clientY-r.top)/r.height)*2+1;raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(Object.values(parts).map(x=>x.mesh),false);if(hits.length)selectPart(hits[0].object.userData.partId);else selectPart(null)}
+function cameraTo(v){const pos={left:[0,.2,5.2],right:[0,.2,-5.2],front:[5.2,.1,0],top:[0,5.4,.2]}[v]||[0,.2,5.2];const start=camera.position.clone(),end=new THREE.Vector3(...pos),t0=performance.now();function move(){const t=clamp((performance.now()-t0)/550,0,1),s=t*t*(3-2*t);camera.position.copy(start).lerp(end,s);controls.target.set(0,-.05,0);if(t<1)requestAnimationFrame(move)}move()}
+function reset(){state.progress=0;state.playing=true;state.explode=0;state.familiarity=20;state.context=35;state.speed=1;$('#explode').checked=false;$('#familiarity').value=20;$('#context').value=35;$('#speed').value=1;$('#famOut').textContent='20%';$('#contextOut').textContent='35%';$('#speedOut').textContent='1.00×';$('#xray').checked=true;state.xray=true;links.forEach(x=>x.visible=true);selectPart(null);cameraTo('left');setPlayingUI();setProgress(0);toast('Simulación reiniciada')}
+function capture(){renderer.render(scene,camera);const a=document.createElement('a');a.download='neurolingua-3d.png';a.href=renderer.domElement.toDataURL('image/png');a.click();toast('Captura PNG preparada')}
+function toast(s){const t=$('#toast');t.textContent=s;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),1900)}
+function resize(){if(!renderer)return;camera.aspect=view.clientWidth/view.clientHeight;camera.updateProjectionMatrix();renderer.setSize(view.clientWidth,view.clientHeight)}
+function animate(){const dt=Math.min(clock.getDelta(),.05);if(state.playing){setProgress(state.progress+dt*.055*state.speed);if(state.progress>=.999)state.progress=0}
+ const idx=phaseIndex(),active=PHASES[idx].color;brain.rotation.y+=state.rotate?dt*.09:0;
+ PARTS.forEach(p=>{const o=parts[p.id],base=o.base;const activePart=({0:['auditory'],1:['auditory','temporal'],2:['temporal','semantic','memory'],3:['semantic','memory','prefrontal'],4:['broca','prefrontal','motor']})[idx].includes(p.id);const strength=activePart?1:0.18;const pulse=activePart?(0.7+Math.sin(performance.now()*.004)*.25):.18;o.mesh.material.emissiveIntensity=pulse;o.halo.material.opacity=activePart?.16:.035;const dir=new THREE.Vector3(base.x,base.y,base.z).normalize();const offset=state.explode*.28; o.group.position.copy(base).add(dir.multiplyScalar(offset));});
+ links.forEach(l=>{l.material.opacity=state.xray?.45:.0;l.material.emissiveIntensity=.1+Math.sin(performance.now()*.003)*.08});
+ const routes=[new THREE.CatmullRomCurve3([new THREE.Vector3(-1.45,.05,.7),new THREE.Vector3(-1.0,.1,.95),new THREE.Vector3(-.55,-.2,.9)]),new THREE.CatmullRomCurve3([new THREE.Vector3(-.95,-.2,.9),new THREE.Vector3(-.35,-.55,.85),new THREE.Vector3(.45,-.5,.8)]),new THREE.CatmullRomCurve3([new THREE.Vector3(-.3,-.55,.7),new THREE.Vector3(.25,.05,.85),new THREE.Vector3(.9,.35,.65)])];
+ particles.forEach((p,i)=>{p.t=(p.t+dt*(.12+state.speed*.1))%1;const v=routes[p.route].getPoint(p.t);p.mesh.position.copy(v);p.mesh.visible=state.progress>(p.route*.22)&&state.progress<(p.route*.22+.65);p.mesh.material.opacity=1});
+ // HTML labels projected from 3D anchors.
+ Object.keys(labels).forEach(id=>{const o=parts[id],v=o.group.position.clone();v.project(camera);const x=(v.x*.5+.5)*view.clientWidth,y=(-v.y*.5+.5)*view.clientHeight;const el=labels[id];const visible=state.labels&&v.z<1&&x>10&&x<view.clientWidth-10&&y>10&&y<view.clientHeight-10;el.style.display=visible?'block':'none';if(visible){el.style.left=x+'px';el.style.top=y+'px';el.style.borderColor=o.data.color;el.style.opacity=state.selected&&state.selected!==id?'.45':'1'}});
+ controls.autoRotate=state.rotate;controls.update();renderer.render(scene,camera)}
+window.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;if(e.code==='Space'){e.preventDefault();state.playing=!state.playing;setPlayingUI()}if(e.key==='ArrowRight'){$('#stepBtn').click()}if(e.key.toLowerCase()==='e'){$('#explode').click()}if(e.key.toLowerCase()==='x'){$('#xray').click()}if(e.key.toLowerCase()==='r')reset();if(e.key==='Escape')selectPart(null)});
+try{setup()}catch(err){console.error(err);$('#loader').innerHTML='<div class="loadbox"><h2>No se pudo cargar el laboratorio 3D</h2><p>Comprueba tu conexión a internet y recarga la página.</p><button class="btn" onclick="location.reload()">Reintentar</button></div>'}
+</script>
+</body></html>
